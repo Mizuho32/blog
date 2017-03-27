@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title><%= title %></title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
+<link rel="stylesheet" href="<%= "#{asciidoctorcss}/asciidoctor.css" %>">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css">
+<style>
+  em {
+    background-color: cyan;
+  }
+</style>
+</head>
+<body class="article">
+  <div id="header">
+    <h1><%= title %></h1>
+  </div>
+  <div id="content">
+    <div class="listingblock">
+      <div class="title"><%= code_title %> <span class="icon">
+        <a href="<%= basename %>" download><i class="fa fa-download"></i></a>
+        </span> <span class="icon">
+        <a href="<%= basename %>" type="text/plain"><i class="fa fa-eye"></i></a>
+        </span>
+      </div>
+      <div class="content">
+        <%- unless lang.nil? -%>
+        <pre class="highlightjs highlight"><%- else -%>
+        <pre><%- end -%><code id="code" class="language-<%= lang %>" data-lang="<%= lang %>"><%= code %></code></pre>
+      </div>
+    </div>
+  </div>
+  <div id="footer">
+    <div id="footer-text">
+    <%= Time.now.to_s %>
+    </div>
+  </div>
+  <% unless lang.nil? then %>
+    <link rel="stylesheet" href="<%= "#{highlightjs}/styles/#{style}.min.css" %>">
+    <script src="<%= "#{highlightjs}/highlight.min.js" %>"></script>
+    <script src="<%= "#{highlightjs}/languages/#{lang}.min.js" %>"></script>
+  <% end %>
+  <script>
+  if (location.search !== "") {
+    var map = location
+      .search
+      .substring(1)
+      .split("&")
+      .reduce((o,el)=>{
+        if (el.includes("=")){
+          var kv = el.split("=");
+          o[kv[0]] = decodeURIComponent(kv[1]);
+        } else
+          o.array.push(decodeURIComponent(el));
+        return o;
+      }, {array:[]})
+    console.log(map);
+
+    var codeDOM = document.getElementById("code");
+    var code = codeDOM.innerHTML;
+
+    for (let pat of map.array){
+      code = code.replace(new RegExp(pat, 'g'), `<em>${pat}</em>`);
+    }
+    codeDOM.innerHTML = code;
+  }
+  <% unless lang.nil? then %>
+  hljs.initHighlighting();
+  <% end %>
+  </script>
+</body>
+</html>

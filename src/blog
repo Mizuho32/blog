@@ -1,0 +1,55 @@
+#!/usr/bin/env ruby
+# coding: utf-8
+
+require 'optparse'
+require 'pp'
+require 'pathname'
+require 'open3'
+
+ARGV << '--help' if ARGV.empty?
+
+args =  OptionParser.new.instance_eval {
+  self.banner        = 'Usage: blog [options]'
+  self.summary_width = 14
+
+  %w[
+    -i :generate\ index.html
+    -g\ <file\ name> :generate\ page\ under\ repos\ into\ articles
+    -r\ <revision> :specify\ gitrevisions\ (default:\ master)
+    -s\ [root_path] :launch\ web\ server
+    -p\ <ad:port> :bind\ address\ and\ port
+  ].each_slice(2){|ar| on(*ar)}
+
+  parse(ARGV)
+}
+
+opt = ARGV.getopts("ig:r:s:p:")
+
+PROJ_ROOT = (Pathname(__FILE__).dirname.expand_path + "../").to_s
+
+case
+  when opt[?i] then
+    require_relative "lib/generate_index"
+
+    entry = PROJ_ROOT + "/templ/index.adoc"
+    Asciidoctor.convert_file(
+      entry, 
+      safe:       :unsafe, 
+      base_dir:   (PROJ_ROOT + "/templ"), 
+      to_dir:     "../articles",
+      attributes: { 
+        'docinfodir' => (PROJ_ROOT + "/templ/common"), 
+        'docinfo'    => "shared"
+      }
+    )
+
+  when path = opt[?g] then
+    require_relative "lib/generate_page"
+    generate_page(opt[?g], opt[?r])
+
+  when opt[?s] then
+    require_relative "lib/server"
+    launch(opt)
+
+    
+end

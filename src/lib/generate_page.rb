@@ -8,10 +8,10 @@ def repo_name_and_relative_path(path, proj_path)
 
   if fullpath.include?(proj_path + "/repos") then
     path.sub(proj_path, "") =~ /repos\/([^\/]+)\/?(?:(.+))?$/
-    return $1, ($2||"")
+    return $1, ($2||"./")
   else
     path =~ /([^\/]+)\/?(?:(.+))?$/
-    return $1, ($2||"")
+    return $1, ($2||"./")
   end
 end
 
@@ -96,13 +96,33 @@ def file_type?(path)
 end
 
 def generate_dir_index(repo_name, rel_path, rev)
+  ftypes = (tmp=YAML.load_file(PROJ_ROOT + "/conf/ftypes.yaml"))[:doc].merge(tmp[:code]).keys
   path = File.expand_path(PROJ_ROOT + "/articles/#{repo_name}/#{rev}/#{rel_path}")
   files = `git show #{rev}:#{rel_path}`.split("\n")[2..-1]
 
-  # make dir
-  files.each{|file| 
+  # make dir for non binary files
+  files = files.select{|file| 
     filepath = "#{path}/#{file}"
-    FileUtils.mkdir_p(filepath) unless File.exist?(filepath)
+
+    next(true)  if File.directory?(filepath)
+    next(false) if File.exist?(filepath)
+
+    # not dir nor code nor doc, looks binary
+    unless file[-1] != ?/ && ftypes.any?{|t| t =~ file} then  
+      now = Time.now
+      tmpfile = "#{path}/#{now.hour}#{now.min}#{now.sec}"
+      `git show #{rev}:#{rel_path}/#{file} > #{tmpfile}`
+
+      if file_type?(tmpfile)[0] != ?t then # binary
+        FileUtils.mv(tmpfile, "#{path}/#{file}")
+        next(false)
+      else
+        FileUtils.mkdir_p(filepath)
+        FileUtils.mv(tmpfile, "#{path}/#{file}/#{file}")
+      end
+    end
+    FileUtils.mkdir_p(filepath)
+    true
   }
 
   # index.html under repository
@@ -138,7 +158,7 @@ ADOC
 = #{repo_name}/#{rev}
 
 #{
-files
+  files
   .map{|file| 
     "link:/#{"#{repo_name}/#{rev}/#{rel_path}/#{file}".gsub(/\/+/,?/)}[#{file}]::"
   }
@@ -224,7 +244,7 @@ def generate_file_index(repo_name, rel_path, rev, write_path, type)
 end
 
 def generate_html(repo_name, rel_path, type, rev)
-  rel_path = File.expand_path("#{rel_path}", ?/)[1..-1]
+  #rel_path = File.expand_path("#{rel_path}", ?/)[1..-1]
 
   if type =~ %r{inode/directory} then
     generate_dir_index(repo_name, rel_path, rev)

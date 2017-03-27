@@ -11,10 +11,13 @@ def webserver(root_path, address, port)
   server.mount_proc('/') do |req, res|
     
     #pp req, res
+    #pp req.path
+    #pp req.header
 
     filename = File.join(root_path, req.path)
+    #pp filename
 
-    if File.directory?(filename) || req.path =~ /\.\w+$/ then
+    if File.directory?(filename) || File.basename(req.path) =~ /^.+\.\w+$/ then
       WEBrick::HTTPServlet::FileHandler
         .new(server, root_path, {:FancyIndexing => true})
         .service(req, res)
@@ -25,11 +28,6 @@ def webserver(root_path, address, port)
       res.content_length = File.stat(filename).size
       res.content_type = "text/plain"
     end
-
-    #pp res
-    #pp req.query_string,req.query, req.path
-    #WEBrick::HTTPServlet::FileHandler.
-      #new(server, Dir.pwd, {:FancyIndexing => true}).service(req, res)
   end 
 
   server

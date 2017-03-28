@@ -15,7 +15,18 @@ def webserver(root_path, address, port)
     #pp req.header
 
     filename = File.join(root_path, req.path)
-    #pp filename
+
+    if File.exist?(html = filename + ".html") then
+      pp "HTML", filename
+      open(html) do |file|
+        res.body = file.read
+      end
+      res.content_length = File.stat(html).size
+      res.content_type = "text/html"
+      next
+    end
+
+    pp req.path, filename
 
     if File.directory?(filename) || File.basename(req.path) =~ /^.+\.\w+$/ then
       WEBrick::HTTPServlet::FileHandler

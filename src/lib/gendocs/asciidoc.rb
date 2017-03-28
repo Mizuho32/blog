@@ -24,7 +24,7 @@ module Blog
           'icons' => 'font'
         }
       )
-      File.write(dir + "/index.html", html) 
+      File.write(dir + ".html", html) 
     end
   end
 end

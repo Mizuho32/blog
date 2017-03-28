@@ -30,7 +30,7 @@ ADOC
           'highlightjsdir' => highlightjs
         }
       )
-      File.write(dir + "/index.html", html) 
+      File.write(dir + ".html", html) 
     end
   end
 end

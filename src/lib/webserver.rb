@@ -15,21 +15,35 @@ def trap404(req, res)
 
 end
 
-def trap_file_not_exist(req,res)
+def trap_file_not_exist(req,res, websocket)
 
   repo_name, rev, rel_path = reqpath_to_pathongit(req)
   rel_path.sub!(%r|([^\.])/+$|, '\1')  # hoge/ -> hoge except ./
   pp repo_name, rev, rel_path
 
   if ret = valid_path?("#{repo_name}/#{rel_path}", rev) then
-    generate_page(*ret, true) # fixme rev.nil?
+    #generate_page(*ret, true) # fixme rev.nil?
+
+    title = "generating"
+    asciidoctorcss = "/css"
+    port = websocket[:port]
+    pid   = rand(100)
+    res.body = eval(ERB.new(File.read(PROJ_ROOT + "/templ/dygen.erb"), binding, ?-).src)
+    res.content_length = res.body.size
+    res.content_type = "text/html"
+    
+    embryo(websocket, pid){ 
+      #sleep 2 
+      generate_page(*ret, true) # fixme rev.nil?
+    }
+
   else
     trap404(req, res)
   end
 
 end
 
-def webserver(root_path, address, port)
+def webserver(root_path, address, port, websocket)
 
   server = WEBrick::HTTPServer.new({
     :BindAddress => address,
@@ -52,7 +66,7 @@ def webserver(root_path, address, port)
       (is_dir = File.directory?(filename) and not File.exist?(filename + "/index.html"))
       then
 
-      trap_file_not_exist(req, res)
+      trap_file_not_exist(req, res, websocket)
       next
     end
 

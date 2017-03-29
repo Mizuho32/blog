@@ -5,6 +5,7 @@ require 'optparse'
 require 'pp'
 require 'pathname'
 require 'open3'
+require 'yaml'
 
 ARGV << '--help' if ARGV.empty?
 
@@ -25,7 +26,7 @@ args =  OptionParser.new.instance_eval {
 
 opt = ARGV.getopts("ig:r:s:p:")
 
-PROJ_ROOT = (Pathname(__FILE__).dirname.expand_path + "../").to_s
+require_relative "../conf/conf"
 
 case
   when opt[?i] then

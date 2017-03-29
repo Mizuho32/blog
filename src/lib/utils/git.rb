@@ -1,0 +1,102 @@
+require 'open3'
+
+module Blog
+  module Git
+    extend self
+
+    public 
+
+    def run_git_cmd(cmd)
+      res = Open3.capture3(cmd)
+      unless res.last.exitstatus.zero? then
+        raise RuntimeError.new(res[1]) if res[1] =~ /Not a git repository/
+      end
+      res
+    end
+
+    def remote_branch
+      result = Open3.capture3("git branch -r --no-color")
+      raise RuntimeError.new(result[1]) unless result.last.exitstatus.zero?
+      result
+        .first
+        .split("\n")
+        .select{|b| !b.include?("/HEAD")}
+        .map{|b| b[/^[^\/]+\/([^\/]+)/, 1]}
+    end
+
+    def remote_branch?(name)
+      return name if remote_branch().include?(name)
+      false
+    end
+
+    def local_branch
+      result = Open3.capture3("git branch --no-color")
+      raise RuntimeError.new(result[1]) unless result.last.exitstatus.zero?
+      result
+        .first
+        .split("\n")
+        .map{|b| b[2..-1]}
+    end
+
+    def local_branch?(name)
+      return name if local_branch().include?(name)
+      false
+    end 
+
+    def commit_hash?(hash, is_branch)
+      if (result = Open3.capture3("git cat-file -e #{hash}^{commit}")).last.exitstatus.zero? then
+        return hash if !is_branch
+      else
+        raise RuntimeError.new(result[1]) if result[1] =~ /repository/
+      end
+      false
+    end 
+
+    def current_branch?(name=nil)
+      res = Open3.capture3("git symbolic-ref --short HEAD")
+      unless res.last.exitstatus.zero? then
+        raise RuntimeError.new(res[1]) if res[1] =~ /repository/
+        return false
+      end
+
+      if name.nil? then
+        res.first.strip
+      else
+        res.first.strip == name
+      end
+    end
+
+    def exist?(path, gitrev = "master")
+      res = Open3.capture3("git show #{gitrev}:#{path} > /dev/null")
+      unless res.last.exitstatus.zero? then
+        raise RuntimeError.new(res[1]) if res[1] =~ /repository/
+        return false
+      end
+
+      true
+    end
+
+    def ls(path, gitrev = "master")
+      res,e,p = run_git_cmd("git show #{gitrev}:#{path}")
+      return [] unless p.exitstatus.zero?
+
+      res
+        .split("\n")[2..-1]
+    end
+
+    def directory?(path, gitrev = "master")
+      return true if path == "./"
+
+      dir = "./" + File.dirname(path)
+      basename = File.basename(path) + "/"
+      list = ls(dir, gitrev)
+
+      list.include? basename  
+    end
+
+    def dirname(relative_path)
+      ?. + File.expand_path(File.dirname(relative_path), ?/)
+    end
+
+  end
+end

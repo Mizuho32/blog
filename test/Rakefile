@@ -1,0 +1,40 @@
+require 'rake/testtask'
+
+task :default => [:test]
+
+Rake::TestTask.new do |test|
+  #test.libs << "test"
+  test.test_files = Dir[ "test_*.rb" ]
+  test.verbose = true
+end
+
+task :init do
+
+ # init test_origin
+ unless File.exist?("test_repos/test_origin") then
+    FileUtils.mkdir_p("test_repos/test_origin")
+    system <<-"CMD"
+cd test_repos/test_origin
+git init --bare
+CMD
+  end
+
+  # init test
+  unless File.exist?("test_repos/test") then
+    FileUtils.mkdir_p("test_repos/test") 
+    system <<-"CMD"
+cd test_repos/test
+git init
+echo "Hello" >  README.md
+wget https://raw.githubusercontent.com/asciidoctor/asciidoctor/master/screenshot.png
+mkdir emptydir
+mkdir dir
+cp README.md screenshot.png dir/
+git add .
+git commit -m "initial"
+orig="$(cd ../; pwd)"/test_origin
+git remote add origin ${orig}
+git push -u origin master
+CMD
+  end
+end

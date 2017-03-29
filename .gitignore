@@ -54,3 +54,4 @@ build-iPhoneSimulator/
 .*.swp
 .*.swo
 /tags
+/test/test_repos/

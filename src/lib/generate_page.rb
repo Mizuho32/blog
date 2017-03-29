@@ -143,11 +143,9 @@ def generate_file_index(repo_name, rel_path, rev, write_path)
       end
       result
     }
-  if result[:type] == :doc then
-    generate_doc(write_path, result[:lang])
-  end
+  
+  generate_doc(write_path, result[:lang]) if result[:type] == :doc
   fortext(write_path, result[:lang] || guess_lang(write_path))
-  #end
 end
 
 def generate_html(repo_name, rel_path, is_dir, rev)

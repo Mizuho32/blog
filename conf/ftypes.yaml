@@ -1,6 +1,6 @@
 --- 
 :doc:
-  !ruby/regexp /\.md$/i: :markdown
-  !ruby/regexp /\.a(?:s)?doc$/i: :asciidoc
+  !ruby/regexp /md/: :markdown
+  !ruby/regexp /a(?:s)?doc/: :asciidoc
 :code:
-  !ruby/regexp /\.c(pp)?$/i: :cpp
+  !ruby/regexp /c(pp)?/: :cpp

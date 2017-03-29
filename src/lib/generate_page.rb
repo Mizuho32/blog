@@ -1,4 +1,5 @@
 require 'yaml'
+require 'cgi'
 
 require 'asciidoctor'
 require 'asciidoctor/extensions'
@@ -118,7 +119,8 @@ def fortext(write_path, lang)
   title = File.basename(write_path)
   asciidoctorcss = Pathname(PROJ_ROOT + "/articles/css").relative_path_from(Pathname(dir)).to_s
   code_title = title
-  code = File.read(write_path)
+  code = CGI.escapeHTML(File.read(write_path))
+  puts code
   highlightjs = Pathname(PROJ_ROOT + "/articles/highlight").relative_path_from(Pathname(dir)).to_s
   style = "github"
   
@@ -145,7 +147,7 @@ def generate_file_index(repo_name, rel_path, rev, write_path)
     }
   
   generate_doc(write_path, result[:lang]) if result[:type] == :doc
-  fortext(write_path, result[:lang] || guess_lang(write_path))
+  fortext(write_path, result[:lang] || Util.guess_lang(write_path))
 end
 
 def generate_html(repo_name, rel_path, is_dir, rev)
@@ -172,8 +174,7 @@ def generate_html(repo_name, rel_path, is_dir, rev)
   end
 end
 
-def generate_page(path, rev)
-
+def valid_path?(path, rev)
   # get revision or branch and relative path
   branch_or_rev = rev&.strip || "master"
   repo_name, rel_path = Util.repo_name_and_relative_path(path.gsub(/\/+/,?/), REPOS_ROOT)
@@ -181,12 +182,12 @@ def generate_page(path, rev)
   ## ERROR CHECK ##
   unless File.directory?(REPOS_ROOT + "/#{repo_name}") then
     STDERR.puts %Q{No repository "#{repo_name}". Abort}
-    exit 1
+    return false
   end
 
   #pp path, branch_or_rev
   #pp repo_name, rel_path
-  $debug.puts("name:#{repo_name}, path:#{rel_path}, rev:#{branch_or_rev}")
+  $debug.puts("name:#{repo_name}, rel_path:#{rel_path}, rev:#{branch_or_rev}")
 
   # branch or revision exists?
   Dir::chdir(REPOS_ROOT + "/#{repo_name}")
@@ -195,14 +196,31 @@ def generate_page(path, rev)
 
   unless result then
     STDERR.puts %Q{No branch nor revision "#{branch_or_rev}". Abort}
-    exit 1
+    return false
   end
 
   if not Git.exist?(rel_path, result) or rel_path.nil?
     STDERR.puts %Q{#{rel_path} doesnt exist in "#{branch_or_rev}". Abort}
-    exit 1
+    return false
   end
   
+  return [repo_name, rel_path, branch_or_rev]
+end
+
+# repo: repository name
+# rel:  relative path under repository. rel should pass `git show branch:rel`
+# rel can end with no / if it is directory. Auto detect
+# rev: revision or branch
+def generate_page(repo, rel, rev, skip_check = false)
+  repo_name, rel_path, branch_or_rev = if skip_check then
+    [repo, rel, rev]
+  elsif ret = valid_path?(path, rev) then
+    ret
+  else
+    return ret
+    false
+  end
+
   is_dir = Git.directory?(rel_path, branch_or_rev)
   $debug.puts "dir #{is_dir}"
   generate_html(repo_name, rel_path, is_dir, branch_or_rev)

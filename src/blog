@@ -15,16 +15,17 @@ args =  OptionParser.new.instance_eval {
 
   %w[
     -i :generate\ index.html
-    -g\ <file\ name> :generate\ page\ under\ repos\ into\ articles
+    -g\ <file\ path> :generate\ page\ under\ repos\ into\ articles
     -r\ <revision> :specify\ gitrevisions\ (default:\ master)
     -s\ [root_path] :launch\ web\ server
     -p\ <ad:port> :bind\ address\ and\ port
+    -c\ <file\ path> :check path
   ].each_slice(2){|ar| on(*ar)}
 
   parse(ARGV)
 }
 
-opt = ARGV.getopts("ig:r:s:p:")
+opt = ARGV.getopts("ig:r:s:p:c:")
 
 require_relative "../conf/conf"
 
@@ -44,9 +45,14 @@ case
       }
     )
 
+  when path = opt[?c] then
+    require_relative "lib/generate_page"
+    exit 1 unless valid_path?(path, opt[?r])
+
   when path = opt[?g] then
     require_relative "lib/generate_page"
-    generate_page(opt[?g], opt[?r])
+    exit 1 unless ret = valid_path?(path, opt[?r])
+    exit 1 unless generate_page(*ret, true)
 
   when opt[?s] then
     require_relative "lib/server"

@@ -2,7 +2,7 @@
 source "https://rubygems.org"
 
 gem "asciidoctor"
-gem "mime-types"
 gem "github-markup"
 gem "commonmarker"
 gem "regexp-examples"
+gem "em-websocket"

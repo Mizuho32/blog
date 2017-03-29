@@ -4,3 +4,4 @@
   !ruby/regexp /a(?:s)?doc/: :asciidoc
 :code:
   !ruby/regexp /c(pp)?/: :cpp
+  !ruby/regexp /rb/: :ruby

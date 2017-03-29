@@ -1,9 +1,13 @@
 require 'yaml'
 
+REPOS_DIR = "repos"
+ARTS_DIR  = "articles"
+CONF_DIR  = "conf"
+
 PROJ_ROOT = (Pathname(__FILE__ ).dirname + "../").expand_path.to_s
-REPOS_ROOT = PROJ_ROOT + "/repos"
-ART_ROOT = PROJ_ROOT + "/articles"
-CONF_ROOT = PROJ_ROOT + "/conf"
+REPOS_ROOT = PROJ_ROOT + "/#{REPOS_DIR}"
+ART_ROOT = PROJ_ROOT + "/#{ARTS_DIR}"
+CONF_ROOT = PROJ_ROOT + "/#{CONF_DIR}"
 
 FTYPES_FILE = CONF_ROOT + "/ftypes.yaml"
 # regex key to IGNORECASE, $ match

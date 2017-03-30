@@ -55,7 +55,7 @@ def generate_dir_index(repo_name, rel_path, rev)
 
 #{ 
 Git.remote_branch.map{|b| 
-  "link:/#{"#{repo_name}/#{b}".gsub(/\/+/,?/)}[#{b}]::"
+  "link:#{b}/[#{b}]::"
 }
 .join("\n") 
 }
@@ -82,7 +82,7 @@ ADOC
 #{
   files
   .map{|file| 
-    "link:/#{"#{repo_name}/#{rev}/#{rel_path}/#{file}".gsub(/\/+/,?/)}[#{file}]::"
+    "link:#{file}[#{file}]::"
   }
   .join("\n") 
 }

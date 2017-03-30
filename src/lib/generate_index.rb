@@ -18,7 +18,7 @@ class ArticleListBlockMacro < Asciidoctor::Extensions::BlockMacroProcessor
     order.map{|name, info|
       <<-"LIST"
     <dt class="hdlist1">
-      <a href="/#{name}">#{name}</a>
+      <a href="#{name}/">#{name}</a>
       <span class="icon">
         <i class="fa fa-calendar"></i>
       </span>

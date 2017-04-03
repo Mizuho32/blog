@@ -1,10 +1,12 @@
+require 'yaml'
 require 'rake/testtask'
 
 task :default => [:test]
+ignore = YAML.load_file("ignore.yaml")
 
 Rake::TestTask.new do |test|
   #test.libs << "test"
-  test.test_files = Dir[ "test_*.rb" ]
+  test.test_files = Dir[ "test_*.rb" ].select{|file| file !~ ignore }
   test.verbose = true
 end
 
@@ -24,17 +26,29 @@ CMD
     FileUtils.mkdir_p("test_repos/test") 
     system <<-"CMD"
 cd test_repos/test
+
 git init
+
 echo "Hello" >  README.md
 wget https://raw.githubusercontent.com/asciidoctor/asciidoctor/master/screenshot.png
 mkdir emptydir
 mkdir dir
 cp README.md screenshot.png dir/
+
 git add .
 git commit -m "initial"
+
+git checkout -b develop
+wget https://computing.llnl.gov/tutorials/pthreads/samples/hello.c
+
+git add .
+git commit -m "initial develop"
+
 orig="$(cd ../; pwd)"/test_origin
 git remote add origin ${orig}
+
 git push -u origin master
+git push -u origin develop
 CMD
   end
 end

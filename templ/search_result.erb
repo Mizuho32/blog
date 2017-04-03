@@ -1,0 +1,53 @@
+Content-type: text/html; charset=utf-8
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 1.5.5">
+<title>ブログ</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
+<link rel="stylesheet" href="css/asciidoctor.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css">
+<link rel="stylesheet" href="highlight/styles/github.min.css">
+<style>
+.hljs-line-numbers {
+	text-align: right;
+	border-right: 1px solid #ccc;
+	color: #999;
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+</style>
+<script src="highlight/highlight.min.js"></script>
+<%=
+  result[:langs].values.reject(&:nil?).map{|lang|
+    %Q{<script src="highlight/languages/#{lang}.min.js"></script>}
+  }.join("\n")
+%>
+
+</head>
+<body class="article">
+<%= headerpart %>
+<div id="header">
+<h1>検索結果</h1>
+</div>
+<div id="content">
+<%= content %>
+</div>
+<!--<div id="footer">
+<div id="footer-text">
+Last updated <%= Time.now.to_s %>
+</div>
+</div>-->
+<script>
+  hljs.initHighlighting();
+</script>
+</body>
+</html>

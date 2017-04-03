@@ -124,6 +124,42 @@ class Gen_Page_Test < Test::Unit::TestCase
     assert_true(directory?("dir/"))
     assert_true(directory?("dir"))
   end
+  
+  test "grep test" do
+    grep = grep("hel", "origin/develop", regexopt:"i")
+    expected = <<-'EX'
+1-/******************************************************************************
+2:* FILE: hello.c
+3-* DESCRIPTION:
+4:*   A "hello world" Pthreads program.  Demonstrates thread creation and
+5-*   termination.
+6-* AUTHOR: Blaise Barney
+--
+12-#define NUM_THREADS  5
+13-
+14:void *PrintHello(void *threadid)
+15-{
+16-   long tid;
+17-   tid = (long)threadid;
+18:   printf("Hello World! It's me, thread #%ld!\n", tid);
+19-   pthread_exit(NULL);
+20-}
+--
+27-   for(t=0;t<NUM_THREADS;t++){
+28-     printf("In main: creating thread %ld\n", t);
+29:     rc = pthread_create(&threads[t], NULL, PrintHello, (void *)t);
+30-     if (rc){
+31-       printf("ERROR; return code from pthread_create() is %d\n", rc);
+EX
     
+    assert_true(grep.keys.include? "hello.c")
+    assert_equal(
+      expected.gsub(/\s+/,""),
+      grep["hello.c"].gsub(/\s+/,""))
+  end
+
+  test "shebang test" do
+    assert_equal("/******************************************************************************\r\n", shebang("hello.c", "test", "develop"))
+  end
 
 end

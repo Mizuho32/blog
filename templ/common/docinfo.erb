@@ -36,21 +36,25 @@
   </style>
   <div class="ui">
     <form action="http://localhost:4000/search.cgi">
-      <input type="text" id="pattern"    name="pattern"    placeholder="pattern">
-      <input type="text" id="repository" name="repository" placeholder="repository" list="repositories" size="10">
+      <input type="text" id="pattern"    name="pattern"    placeholder="pattern" value="<%= cgi["pattern"] %>">
+      <input type="text" id="repository" name="repository" placeholder="repository" list="repositories" size="10" value="<%= cgi["repository"] %>">
         <datalist id="repositories">
           <option value="test1">
           <option value="test2">
         </datalist>
-      <input type="text" id="branch"     name="branch"     placeholder="branch"     list="revs" size="10">
+      <input type="text" id="branch"     name="branch"     placeholder="branch"     list="revs" size="10" value="<%= cgi["branch"] %>">
         <datalist id="revs">
           <option value="test1">
           <option value="test2">
         </datalist>
+      <input type="text" id="file"       name="file"       placeholder="file"   size="10" value="<%= cgi["file"] %>">
       <label id="direction">
         <input type="checkbox" class="checkbox" id="breadth" name="breadth" checked="checked">
         <span class="checkbox-icon"></span>
       </label>
+      <% if defined? id %>
+      <input type="hidden" name="id" value="<%= id %>">
+      <% end %>
       <input type="submit">
     </form>
   </div>

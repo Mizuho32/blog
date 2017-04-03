@@ -18,7 +18,7 @@ def launch(opt)
 
   trap(:INT){
     webserver.shutdown
-    websocket.kill
+    websocket[:server].kill
   }
 
   webserver.start

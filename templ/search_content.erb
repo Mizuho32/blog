@@ -1,0 +1,76 @@
+<style>
+  .tabs {
+    position: relative;
+    height: 100vh;    /* 要素の高さ */
+  }
+  .tab {
+    top: 0;
+    float: left;
+  }
+  .tab input {
+    /*display: none;*/
+  }
+  .tab label {
+    position: relative;
+    z-index: 10;
+    /* 他、選択されていない時のCSSを記述 */
+  }
+  [type=radio]:checked + label{
+    /* 選択された時のCSSを記述 */
+    background-color: red;
+  }
+  .tab-content {
+    display: none;
+    position: absolute;
+    left: 0;
+    width: 100%;
+  }
+
+  [type=radio]:checked ~ .tab-content {
+    display: block;
+  }
+
+</style>
+
+<div class="tabs">
+<%=
+result[:code].each_with_index.map{|(repo, b_code), i|
+<<-"HTML"
+  <div class="tab">
+    <input name="tab" type="radio" id="#{repo}" #{i.zero? ? :checked : ""}>
+    <label for="#{repo}">#{repo}</label>
+    <div class="tab-content">
+      <dl>
+#{
+      b_code.map{|branch, file_code|
+<<-"DL"
+        <dt class="hdlist1">
+          #{branch}
+        </dt>
+        <dd>
+#{
+          file_code.map{|file, rawcode|
+          line,code = split_line_and_code(rawcode)
+          <<-"CODE"
+          <div class="listingblock">
+            <div class="title">
+              <a href="#{repo}/#{branch}/#{file}" class="bare">#{file}</a>
+            </div>
+            <div class="content">
+              <pre class="highlightjs highlight"><code class="hljs hljs-line-numbers" style="float: left;">#{line}</code><code class="language-#{result[:langs][file]} hljs" data-lang="#{result[:langs][file]}">#{code}</code></pre>
+            </div>
+          </div>
+CODE
+          }.join("\n")
+}
+        </dd>
+DL
+      }.join("\n")
+}
+      </dl>
+    </div>
+  </div>
+HTML
+}.join("\n")
+%>
+</div>

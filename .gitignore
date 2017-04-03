@@ -55,3 +55,6 @@ build-iPhoneSimulator/
 .*.swo
 /tags
 /test/test_repos/
+/test/ignore.yaml
+/cache/
+/conf/debug

@@ -1,3 +1,4 @@
+# encoding: utf-8
 require 'open3'
 
 module Blog
@@ -6,8 +7,8 @@ module Blog
 
     public 
 
-    def run_git_cmd(cmd)
-      res = Open3.capture3(cmd)
+    def run_git_cmd(cmd, dir:"./")
+      res = Open3.capture3(%Q{git -C "#{dir}" #{cmd}})
       unless res.last.exitstatus.zero? then
         raise RuntimeError.new(res[1]) if res[1] =~ /Not a git repository/
       end
@@ -77,7 +78,7 @@ module Blog
     end
 
     def ls(path, gitrev = "master")
-      res,e,p = run_git_cmd("git show #{gitrev}:#{path}")
+      res,e,p = run_git_cmd("show #{gitrev}:#{path}")
       return [] unless p.exitstatus.zero?
 
       res
@@ -96,6 +97,23 @@ module Blog
 
     def dirname(relative_path)
       ?. + File.expand_path(File.dirname(relative_path), ?/)
+    end
+
+    def grep(pat, rev, regexopt:"", opt:"-C 2 -n  -I")
+      out, err, p = run_git_cmd("grep --break --heading #{opt} -E#{regexopt} '#{pat}' #{rev}")
+      return {} unless p.exitstatus.zero?
+      out
+        .split(/^$/)
+        .inject({}){|hash, code| 
+          hash[code[/^[^:]+:(.+)$/,1]] = code[/\A.+?\n(.+)\z/m, 1]
+          hash
+        }
+    end
+
+    def shebang(rel_path, repo, gitrev="master")
+      out, err, p = run_git_cmd("show #{gitrev}:#{rel_path} | head -n 1", dir:(REPOS_ROOT+"/#{repo}"))
+      return "" unless p.exitstatus.zero?
+      return out
     end
 
   end

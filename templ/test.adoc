@@ -1,0 +1,26 @@
+:linkcss:
+:stylesdir: ../articles/css
+:sectnums:
+:icons: font
+:docinfo: shared
+:docinfodir: common
+
+= ブログ
+
+== 一覧
+
+
+{docinfodir}
+oi {linkcss} oi
+
+link:poi[PIO]::
+
+1 icon:apple[]::
+one
+I:::
+いち
+2::
+two
+
+* po http://HI[hi] icon:windows[]
+* HEY

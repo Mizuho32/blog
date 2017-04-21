@@ -12,6 +12,12 @@
   em {
     background-color: cyan;
   }
+
+  em.match {
+    font-weight: bold;
+    font-style: normal;
+    background-color: rgba(140, 255, 165, 0.5);
+  }
 </style>
 </head>
 <body class="article">
@@ -59,13 +65,14 @@
       }, {array:[]})
     console.log(map);
 
+    if (!map.pattern) exit;
+
+    var match = map.pattern.match(/^\/(.+?)\/([^\/]*)$/);
     var codeDOM = document.getElementById("code");
     var code = codeDOM.innerHTML;
+    console.log(match);
 
-    for (let pat of map.array){
-      code = code.replace(new RegExp(pat, 'g'), `<em>${pat}</em>`);
-    }
-    codeDOM.innerHTML = code;
+    codeDOM.innerHTML = code.replace(new RegExp(`(${match[1]})`, `${match[2]}g`), '<em class="match">$1</em>');
   }
   <% unless lang.nil? then %>
   hljs.initHighlighting();

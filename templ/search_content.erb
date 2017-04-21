@@ -30,10 +30,17 @@
     display: block;
   }
 
+  em.match {
+    font-weight: bold;
+    font-style: normal;
+    background-color: rgba(140, 255, 165, 0.5);
+  }
+
 </style>
 
 <div class="tabs">
 <%=
+pat = result[:pattern];
 result[:code].each_with_index.map{|(repo, b_code), i|
 <<-"HTML"
   <div class="tab">
@@ -51,10 +58,11 @@ result[:code].each_with_index.map{|(repo, b_code), i|
 #{
           file_code.map{|file, rawcode|
           line,code = split_line_and_code(rawcode)
+          code.gsub!(%r{(#{pat})}, '<em class="match">\1</em>')
           <<-"CODE"
           <div class="listingblock">
             <div class="title">
-              <a href="#{repo}/#{branch}/#{file}" class="bare">#{file}</a>
+              <a href="#{repo}/#{branch}/#{file}/?pattern=#{CGI.escape(pat.inspect)}" class="bare">#{file}</a>
             </div>
             <div class="content">
               <pre class="highlightjs highlight"><code class="hljs hljs-line-numbers" style="float: left;">#{line}</code><code class="language-#{result[:langs][file]} hljs" data-lang="#{result[:langs][file]}">#{code}</code></pre>

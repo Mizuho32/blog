@@ -62,7 +62,8 @@ result[:code].each_with_index.map{|(repo, b_code), i|
 #{
           file_code.map{|file, rawcode|
           line,code = split_line_and_code(rawcode)
-          code.gsub!(%r{(#{pat})}, '<em class="match">\1</em>')
+          code = CGI.escapeHTML(code.gsub!(%r|(#{pat})|, "\x0\\1\x1"))
+          code.gsub!("\x0", '<em class="match">').gsub!("\x1", '</em>')
           <<-"CODE"
           <div class="listingblock">
             <div class="title">

@@ -1,3 +1,5 @@
+require 'erb'
+
 module Blog
   module Util
     extend self
@@ -36,6 +38,17 @@ module Blog
       }
 
       return ar.last + 1
+    end
+
+    def render_erb(path, binding_)
+      eval(
+        ERB.new(
+          File.read(path), 
+          binding_, 
+          ?-
+        ).src,
+        binding_
+      )
     end
 
   end

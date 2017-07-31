@@ -13,6 +13,9 @@ CONF_ROOT         = PROJ_ROOT + "/#{CONF_DIR}"
 SEARCH_CACHE_ROOT = PROJ_ROOT + "/#{CACHE_DIR}/search"
 
 FTYPES_FILE = CONF_ROOT + "/ftypes.yaml"
+
+ITEM_PER_PAGE     = 1
+
 # regex key to IGNORECASE, $ match
 (->(){
   raw = []

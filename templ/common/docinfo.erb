@@ -1,4 +1,27 @@
 <div id="headerpart">
+  <script type="text/javascript">
+    window.addEventListener('beforeunload', function(e) {
+      alert("expire <%= id %>");
+
+      $.ajax({        
+                url: "search.cgi",
+                type: 'POST',
+                data: {
+                  'expire': "<%= id %>"
+                },
+                timeout: 10000,
+                dataType: 'text'
+      }).done(function (data) { //Ajax通信に成功したときの処理
+          //alert(`success${data}`);
+      }).fail(function (data) { //Ajax通信に失敗したときの処理
+          alert('cache finalize error');
+      }).always(function (data) { //処理が完了した場合の処理
+          //alert('always');    
+      });
+
+      e.returnValue = 'cache finalize';
+    }, false);
+  </script>
   <style>
     #headerpart {
       position: fixed;

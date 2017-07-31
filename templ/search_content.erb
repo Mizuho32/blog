@@ -40,47 +40,40 @@
     white-space: pre;
   }
 
+/* 2nd tab */
+  .branches {
+    top: 0;
+    float: left;
+    margin-top: 5px;
+  }
+  .branches label {
+    position: relative;
+    z-index: 10;
+  }
+  [type=radio]:checked ~ .branch-content {
+    display: block;
+  }
+  .branch-content {
+    display: none;
+    position: absolute;
+    left: 0;
+    width: 100%;
+  }
+
+
 </style>
 
 <div class="tabs">
 <%=
-pat = result[:pattern];
 result[:code].each_with_index.map{|(repo, b_code), i|
 <<-"HTML"
   <div class="tab">
     <input name="tab" type="radio" id="#{repo}" #{i.zero? ? :checked : ""}>
     <label for="#{repo}">#{repo}</label>
     <div class="tab-content">
-      <dl>
 #{
-      b_code.map{|branch, file_code|
-<<-"DL"
-        <dt class="hdlist1">
-          #{branch}
-        </dt>
-        <dd>
-#{
-          file_code.map{|file, rawcode|
-          line,code = split_line_and_code(rawcode)
-          code = CGI.escapeHTML(code.gsub!(%r|(#{pat})|, "\x0\\1\x1"))
-          code.gsub!("\x0", '<em class="match">').gsub!("\x1", '</em>')
-          <<-"CODE"
-          <div class="listingblock">
-            <div class="title">
-              <a href="#{repo}/#{branch}/#{file}/?pattern=#{CGI.escape(pat.inspect)}" class="bare">#{file}</a>
-            </div>
-            <div class="content">
-              <pre class="highlightjs highlight"><code class="hljs hljs-line-numbers" style="float: left;">#{line}</code><code class="language-#{result[:langs][file]} hljs" data-lang="#{result[:langs][file]}">#{code}</code></pre>
-            </div>
-          </div>
-CODE
-          }.join("\n")
+        branch_code_content(repo, b_code, id, result, i)
 }
-        </dd>
-DL
-      }.join("\n")
-}
-      </dl>
     </div>
   </div>
 HTML

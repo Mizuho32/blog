@@ -21,7 +21,19 @@ end
 
 $debug.puts cgi.params
 
-print generate_search_page(cgi)
+unless (id = cgi["expire"]).empty? then
+
+  id = id.to_i
+  FileUtils.rm(SEARCH_CACHE_ROOT + "/#{id}")
+  print <<-"HTML"
+Content-type: text/html
+
+OK
+HTML
+
+else
+  print generate_search_page(cgi)
+end
 
 rescue Exception => ex
 

@@ -61,3 +61,4 @@ build-iPhoneSimulator/
 /bower_components/
 /node_modules/
 ignore/
+/test/test_html

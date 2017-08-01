@@ -58,3 +58,6 @@ build-iPhoneSimulator/
 /test/ignore.yaml
 /cache/
 /conf/debug
+/bower_components/
+/node_modules/
+ignore/

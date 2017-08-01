@@ -62,3 +62,4 @@ build-iPhoneSimulator/
 /node_modules/
 ignore/
 /test/test_html
+/src/js/lib/lib.js

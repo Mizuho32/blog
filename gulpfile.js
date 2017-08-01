@@ -11,7 +11,7 @@ gulp.task("bower", function(){
 	gulp.src( bower() )
 		.pipe( js_filter )
 		.pipe( concat('lib.js') )
-		.pipe( gulp.dest('js/lib') )
+		.pipe( gulp.dest('src/js/lib') )
 });
 
 gulp.task('default', ['bower']);

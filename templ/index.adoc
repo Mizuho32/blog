@@ -6,21 +6,13 @@
 
 = ブログ
 
+== 最近
+
+alist::[key=recent]
+
 == 一覧
 
-alist::[]
+alist::[key=repos]
 
-{docinfodir}
-oi {linkcss} oi
-
-link:poi[PIO]::
-
-1 icon:apple[]::
-one
-I:::
-いち
-2::
-two
-
-* po http://HI[hi] icon:windows[]
-* HEY
+//{docinfodir}
+//{linkcss}

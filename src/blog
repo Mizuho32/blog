@@ -20,23 +20,28 @@ args =  OptionParser.new.instance_eval {
     -s\ [root_path] :launch\ web\ server
     -p\ <ad:port> :bind\ address\ and\ port\ for\ webserver
     -w\ <ad:port> :bind\ address\ and\ port\ for\ websocket
-    -c\ <file\ path> :check path
+    -c\ <file\ path> :check\ path
+    -f\ <cfg.yaml> :fetch\ repositories
   ].each_slice(2){|ar| on(*ar)}
 
   parse(ARGV)
 }
 
-opt = ARGV.getopts("ig:r:s:p:c:w:")
+opt = ARGV.getopts("ig:r:s:p:c:w:f:")
 
 require_relative "../conf/conf"
 
 case
   when opt[?i] then
+    require_relative "lib/fetch_repos"
+    require_relative 'lib/utils/util'
     require_relative "lib/generate_index"
 
-    entry = PROJ_ROOT + "/templ/index.adoc"
+    cache = Blog::Fetch.fetch_repos(YAML.load_file(opt[?f]))
+    Blog::Fetch.cache = Blog::Fetch.index_model(cache)
+
     Asciidoctor.convert_file(
-      entry, 
+      PROJ_ROOT + "/templ/index.adoc", 
       safe:       :unsafe, 
       base_dir:   (PROJ_ROOT + "/templ"), 
       to_dir:     "../articles",
@@ -63,5 +68,9 @@ case
     require_relative 'lib/websocket'
     wsonly(opt)
 
-    
+  when y = opt[?f] then
+    require_relative "lib/fetch_repos"
+    require_relative 'lib/utils/util'
+    Blog::Fetch.fetch_repos(YAML.load_file(y))
+    #pp Blog::Fetch.index_model(cache)
 end

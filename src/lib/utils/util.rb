@@ -1,4 +1,6 @@
 require 'erb'
+require 'msgpack'
+require 'lzma'
 
 module Blog
   module Util
@@ -49,6 +51,17 @@ module Blog
         ).src,
         binding_
       )
+    end
+
+    def save(path, obj)
+      #File.write(path, LZMA.compress(obj.to_msgpack))
+      File.open(path, "w") {|f|
+        f.write LZMA.compress(Marshal.dump(obj))
+      }
+    end
+    
+    def restore(path)
+      Marshal.load(LZMA.decompress(File.read(path)))
     end
 
   end

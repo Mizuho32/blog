@@ -27,7 +27,7 @@ ZONE                = "JST"
 GIT_HOSTS           = {
   github: :Mizuho32
 }
-COND                = ->(name){ name !~ /^d3|mbed-os|asciidoctor/i }
+COND                = ->(name){ name !~ /^d3|mbed-os|asciidoctor|vim/i }
 
 # regex key to IGNORECASE, $ match
 (->(){

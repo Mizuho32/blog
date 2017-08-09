@@ -126,6 +126,7 @@ module Blog
     public 
 
     def generate_index(last = 0)
+
       cache = Blog::Fetch.fetch_repos(GIT_HOSTS)
       Blog::Index.cache = Blog::Fetch.index_model(cache, COND)
 
@@ -162,9 +163,6 @@ module Blog
         )
         File.write("#{ARTS_DIR}/index#{i}.html", html)
       end
-
-
-
     end
 
   end

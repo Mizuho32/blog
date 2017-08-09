@@ -9,34 +9,42 @@ require 'yaml'
 
 ARGV << '--help' if ARGV.empty?
 
-args =  OptionParser.new.instance_eval {
+opt = OptionParser.new.instance_eval {
   self.banner        = 'Usage: blog [options]'
-  self.summary_width = 14
+  self.summary_width = 34
 
-  %w[
-    -i [max_page_num]::generate\ index.html
-    -g\ <file\ path> :generate\ page\ under\ repos\ into\ articles
-    -r\ <revision> :specify\ gitrevisions\ (default:\ master)
-    -s\ [root_path] :launch\ web\ server
-    -p\ <ad:port> :bind\ address\ and\ port\ for\ webserver
-    -w\ <ad:port> :bind\ address\ and\ port\ for\ websocket
-    -c\ <file\ path> :check\ path
-    -f :fetch\ repositories
-  ].each_slice(2){|ar| on(*ar)}
+  defin = {
+    "index [max_page_num]": "generate index.html",
+    "generate <file path>": "generate page under repos into articles",
+    "revision <revision>":  "specify gitrevisions (default: master)",
+    "server [root_path]":   "launch web server",
+    "port <ad:port>":       "bind address and port for webserver",
+    "ws <ad:port>":         "bind address and port for websocket",
+    "check <file_path>":    "check path",
+    "fetch":                "fetch repositories"
+  }
+
+  opt = defin.inject({}){|h, (k,v)|
+    o = k[/^(\w+)(?:(\s+.+))?$/, 1]
+    on("-#{o[0]}#{$2}", "--#{o}#{$2}", v) do |val|
+      h[o[0]] = val
+    end
+
+    h
+  }
 
   parse(ARGV)
+  opt
 }
-
-opt = ARGV.getopts("i:g:r:s:p:c:w:f")
 
 require_relative "../conf/conf"
 
 case
-  when (i = opt[?i]) then
+  when opt.has_key?(?i)then
     require_relative "lib/fetch_repos"
     require_relative 'lib/utils/util'
     require_relative "lib/generate_index"
-    Blog::Index.generate_index(i.to_i)
+    Blog::Index.generate_index(opt[?i].to_i)
 
   when path = opt[?c] then
     require_relative "lib/generate_page"
@@ -47,7 +55,7 @@ case
     exit 1 unless ret = valid_path?(path, opt[?r])
     exit 1 unless generate_page(*ret, true)
 
-  when opt[?s] then
+  when opt.has_key?(?s) then
     require_relative "lib/server"
     launch(opt)
 
@@ -58,5 +66,5 @@ case
   when opt[?f] then
     require_relative "lib/fetch_repos"
     require_relative 'lib/utils/util'
-    Blog::Fetch.fetch_repos(GIT_HOSTS)
+    Blog::Fetch.fetch_and_pull_repositories
 end

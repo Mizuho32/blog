@@ -70,6 +70,7 @@ WARN
     end
 
     def index_model(caches, cond = ->(){ true } )
+
       order = {}
 
       order[:repos] = tmp = caches.map{|hosting, owner_repos|
@@ -78,6 +79,36 @@ WARN
       order[:recent] = tmp.sort{|l,r| r.updated_at <=> l.updated_at }.take(ITEM_UPDATED)
 
       order
+    end
+
+    def fetch_and_pull_repositories
+
+      require_relative "utils/git"
+      cache = Blog::Fetch.fetch_repos(GIT_HOSTS)
+
+      print "Pull/Clone (a)ll, (n)ot all repositories? (e)xit >>"
+
+      if (input = "#{gets.chomp}n") !~ /^e/i then
+
+        Blog::Fetch.index_model(cache, COND)[:repos].each{|repo|
+          
+          unless input[0] == ?a
+            print "Pull/Clone #{repo.name}? [y/n] >>" 
+            next if "#{gets.chomp}n"[0] == ?n
+          end
+          
+          if File.exist?(r_dir = REPOS_ROOT + "/#{repo.name}") then
+            puts "\npull #{repo.name} in #{r_dir}"
+            Blog::Git.run_git_cmd("pull", dir: r_dir)
+          else
+            puts "\nclone #{repo.clone_url}"
+            Blog::Git.run_git_cmd("clone #{repo.clone_url}", dir: REPOS_ROOT)
+          end
+        }
+
+      end
+
+      puts "\nFinished"    
     end
 
   end

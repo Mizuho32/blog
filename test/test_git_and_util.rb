@@ -15,6 +15,7 @@ class Gen_Page_Test < Test::Unit::TestCase
 
   class << self
     def startup 
+      puts "\033[33mTEST #{File.basename __FILE__}\033[0m"
     end
     
     def shutdown
@@ -97,13 +98,13 @@ class Gen_Page_Test < Test::Unit::TestCase
     assert_false( current_branch?("develop") )
   end
 
-  test "exist? test" do
-    assert_true( exist?("dir", "master") )
-    assert_true( exist?("dir/", "master") )
-    assert_true( exist?("README.md", "master") )
-    assert_true( exist?("dir/README.md", "master") )
-    assert_false( exist?("empty/README.md", "master") )
-    assert_false( exist?("README.md/", "master") )
+  test "exist_remote? test" do
+    assert_true(  exist?("dir",              "master") )
+    assert_true(  exist?("dir/",             "master") )
+    assert_true(  exist?("README.md",        "master") )
+    assert_true(  exist?("dir/README.md",    "master") )
+    assert_false( exist?("empty/README.md",  "master") )
+    assert_false( exist?("README.md/",       "master") )
   end
 
   test "ls test" do
@@ -159,7 +160,48 @@ EX
   end
 
   test "shebang test" do
-    assert_equal("/******************************************************************************\r\n", shebang("hello.c", "test", "develop"))
+    assert_equal("/******************************************************************************\r\n", shebang("hello.c", "test", "origin/develop"))
+  end
+
+  test "GitRevision local branch ok" do
+    # fixme テスト用のリポジトリはローカルリポジトリとリモートリポジトリ混合か?
+
+    rev = GitRevision.new("master")
+
+    assert_equal("#{GIT_REMOTE}/master", rev.revision)
+    assert_equal("master",               rev.to_s)
+  end
+
+  test "GitRevision remote branch ok" do
+
+    rev = GitRevision.new("develop")
+
+    assert_equal("#{GIT_REMOTE}/develop", rev.revision)
+    assert_equal("develop",               rev.to_s)
+  end
+
+  test "GitRevision hash ok" do
+
+    rev = GitRevision.new("06d24014f2f003b623c252d99eb99c88653e5183")
+
+    assert_equal("06d24014f2f003b623c252d99eb99c88653e5183", rev.revision)
+    assert_equal("06d24014f2f003b623c252d99eb99c88653e5183", rev.to_s)
+  end
+
+  test "GitRevision branch bad" do
+
+    assert_raise(ArgumentError) {
+      GitRevision.new("poi")
+    }
+
+  end
+
+  test "GitRevision hash bad" do
+
+    assert_raise(ArgumentError) {
+      GitRevision.new("06d24014f2f003b623c252d99eb99c88653e5184")
+    }
+
   end
 
 end

@@ -234,6 +234,7 @@ def generate_html(repo_name, rel_path, is_dir, rev)
 end
 
 def valid_path?(path, rev)
+
   # get revision or branch and relative path
   branch_or_rev = rev&.strip || "master"
   repo_name, rel_path = Util.repo_name_and_relative_path(path.gsub(/\/+/,?/), REPOS_ROOT)
@@ -250,10 +251,14 @@ def valid_path?(path, rev)
 
   # branch or revision exists?
   Dir::chdir(REPOS_ROOT + "/#{repo_name}")
-  branch = Git.local_branch?(branch_or_rev) || (remote = Git.remote_branch?(branch_or_rev))
-  result = branch || Git.commit_hash?(branch_or_rev, branch)
 
-  unless result then
+  #branch = Git.remote_branch?(branch_or_rev)
+  #result = Git.commit_hash?(branch_or_rev, branch) || (branch && "#{GIT_REMOTE}/#{branch}")
+
+  begin
+    result = Git::GitRevision.new(branch_or_rev)
+  rescue ArgumentError => ex
+    STDERR.puts "", ex.message
     STDERR.puts %Q{No branch nor revision "#{branch_or_rev}". Abort}
     return false
   end
@@ -263,7 +268,7 @@ def valid_path?(path, rev)
     return false
   end
   
-  return [repo_name, rel_path, branch_or_rev]
+  return [repo_name, rel_path, result]
 end
 
 # repo: repository name

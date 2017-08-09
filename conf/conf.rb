@@ -15,6 +15,7 @@ SEARCH_CACHE_ROOT = PROJ_ROOT + "/#{CACHE_DIR}/search"
 FETCH_CACHE_ROOT  = PROJ_ROOT + "/#{CACHE_DIR}/fetch"
 
 FTYPES_FILE = CONF_ROOT + "/ftypes.yaml"
+GIT_REMOTE        = "origin"
 
 # for search
 ITEM_PER_PAGE     = 1

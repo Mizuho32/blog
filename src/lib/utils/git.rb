@@ -68,6 +68,7 @@ module Blog
     end
 
     def exist?(path, gitrev = "master")
+
       res = Open3.capture3("git show #{gitrev}:#{path} > /dev/null")
       unless res.last.exitstatus.zero? then
         raise RuntimeError.new(res[1]) if res[1] =~ /repository/
@@ -114,6 +115,47 @@ module Blog
       out, err, p = run_git_cmd("show #{gitrev}:#{rel_path} | head -n 1", dir:(REPOS_ROOT+"/#{repo}"))
       return "" unless p.exitstatus.zero?
       return out
+    end
+
+  end
+end
+
+module Blog
+  module Git
+
+    class GitRevision
+      
+      def check(rev_string)
+        if b = Git.remote_branch?(rev_string)  then
+          :branch
+        elsif  Git.commit_hash?(rev_string, b) then
+          :hash
+        else
+          raise ArgumentError.new("Invalied git revision '#{rev_string}'")
+        end
+      end
+
+      def initialize(rev_string)
+        @type     = check(rev_string)
+        @revision = rev_string
+      end
+      
+      def to_s
+        @revision
+      end
+
+      def inspect
+        to_s()
+      end
+
+      def revision
+        if @type == :branch then
+          "#{GIT_REMOTE}/#{@revision}"
+        else
+          @revision
+        end
+      end
+
     end
 
   end

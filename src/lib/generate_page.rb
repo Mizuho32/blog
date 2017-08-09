@@ -11,7 +11,62 @@ require_relative 'utils/util'
 include Blog
 $debug = STDOUT
 
+def generate_docinfo_for_index(current, branches, repo_name, rel_path)
+branch_dropdown_css = '''
+    form {
+      display: inline-block;
+    }
+    .dropbtn {
+      background-color: #4CAF50;
+      color: white;
+      /*padding: 16px;*/
+      font-size: 16px;
+      border: none;
+      cursor: pointer;
+    }
+    .branch-dropdown {
+      position: relative;
+      display: inline-block;
+      float: right;
+    }
+    .branch-dropdown.content {
+      display: none;
+      position: absolute;
+      background-color: #f9f9f9;
+      min-width: 160px;
+      box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+      z-index: 1;
+      right: 0;
+    }
+    .branch-dropdown.content a {
+        color: black;
+        padding: 12px 16px;
+        text-decoration: none;
+        display: block;
+    }
+    .branch-dropdown:hover .branch-dropdown.content {
+      display: block;
+    }
+'''
+
+branch_dropdown_html = <<-"HTML"
+    <div class="branch-dropdown">
+      <button class="dropbtn">#{current}</button>
+      <div class="branch-dropdown content">
+#{
+          branches.map{|b| 
+%Q{        <a href="#{Pathname("/#{repo_name}/#{b}/#{rel_path}").cleanpath}">#{b}</a>}
+          }.join("\n")
+        }
+      </div>
+    </div>
+HTML
+  cgi = {} #dummy fixme
+  Util.render_erb(PROJ_ROOT + "/templ/common/docinfo.erb", binding)
+end
+
 def generate_dir_index(repo_name, rel_path, rev)
+
   ftypes = FTYPES[:doc].merge(FTYPES[:code]).keys
   path = File.expand_path(ART_ROOT + "/#{repo_name}/#{rev}/#{rel_path}")
   files = Git.ls(rel_path, rev)
@@ -54,7 +109,7 @@ def generate_dir_index(repo_name, rel_path, rev)
 = #{repo_name}
 
 #{ 
-Git.remote_branch.map{|b| 
+(branches = Git.remote_branch).map{|b| 
   "link:#{b}/[#{b}]::"
 }
 .join("\n") 
@@ -74,6 +129,9 @@ ADOC
     File.write(PROJ_ROOT + "/articles/#{repo_name}/index.html", html)
   end
 
+  # gen docinfo for index
+  File.write(CACHE_ROOT + "/index/docinfo.html", generate_docinfo_for_index(rev, branches, repo_name, rel_path))
+
   # index.html under dir
   relcss = Pathname(PROJ_ROOT + "/articles/css").relative_path_from(Pathname(path)).to_s
   adoc = <<-"ADOC"
@@ -92,10 +150,9 @@ ADOC
     safe: :unsafe,
     header_footer: true,
     attributes: {
- 
     'linkcss'    => "",
     'stylesdir'  => relcss,
-    'docinfodir' => (PROJ_ROOT + "/templ/common"), 
+    'docinfodir' => (CACHE_ROOT + "/index"), 
     'docinfo'    => "shared"
     },
   )
@@ -134,6 +191,7 @@ def forbinary(type)
 end
 
 def generate_file_index(repo_name, rel_path, rev, write_path)
+
   # file type (code? doc?) and format (lang)
   result = FTYPES
     .inject({}){|result, (type, langs)| 
@@ -151,6 +209,7 @@ def generate_file_index(repo_name, rel_path, rev, write_path)
 end
 
 def generate_html(repo_name, rel_path, is_dir, rev)
+
   d = ART_ROOT + "/#{repo_name}/#{rev}/#{rel_path}"
 
   if is_dir then
@@ -212,6 +271,7 @@ end
 # rel can end with no / if it is directory. Auto detect
 # rev: revision or branch
 def generate_page(repo, rel, rev, skip_check = false)
+
   repo_name, rel_path, branch_or_rev = if skip_check then
     [repo, rel, rev]
   elsif ret = valid_path?(path, rev) then

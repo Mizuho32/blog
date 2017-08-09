@@ -1,4 +1,5 @@
 <div id="headerpart">
+  <% if defined? id then %>
   <script type="text/javascript">
     window.addEventListener('beforeunload', function(e) {
       alert("expire <%= id %>");
@@ -22,6 +23,7 @@
       e.returnValue = 'cache finalize';
     }, false);
   </script>
+  <% end %>
   <style>
     #headerpart {
       position: fixed;
@@ -56,6 +58,10 @@
       font: normal normal normal 14px/1 FontAwesome;
       content: "\f061"; /*→*/
     }
+
+    <% if defined? branch_dropdown_css then %>
+    <%= branch_dropdown_css %>
+    <% end %>
   </style>
   <div class="ui">
     <form action="http://localhost:4000/search.cgi">
@@ -80,5 +86,8 @@
       <% end %>
       <input type="submit">
     </form>
+    <% if defined? branch_dropdown_html then %>
+    <%= branch_dropdown_html %>
+    <% end %>
   </div>
 </div>

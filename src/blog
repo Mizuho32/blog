@@ -32,11 +32,11 @@ opt = ARGV.getopts("i:g:r:s:p:c:w:f")
 require_relative "../conf/conf"
 
 case
-  when i = opt[?i].to_i then
+  when (i = opt[?i]) then
     require_relative "lib/fetch_repos"
     require_relative 'lib/utils/util'
     require_relative "lib/generate_index"
-    Blog::Index.generate_index(i)
+    Blog::Index.generate_index(i.to_i)
 
   when path = opt[?c] then
     require_relative "lib/generate_page"

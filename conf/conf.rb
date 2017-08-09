@@ -10,6 +10,7 @@ PROJ_ROOT         = (Pathname(__FILE__ ).dirname + "../").expand_path.to_s
 REPOS_ROOT        = PROJ_ROOT + "/#{REPOS_DIR}"
 ART_ROOT          = PROJ_ROOT + "/#{ARTS_DIR}"
 CONF_ROOT         = PROJ_ROOT + "/#{CONF_DIR}"
+CACHE_ROOT        = PROJ_ROOT + "/#{CACHE_DIR}"
 SEARCH_CACHE_ROOT = PROJ_ROOT + "/#{CACHE_DIR}/search"
 FETCH_CACHE_ROOT  = PROJ_ROOT + "/#{CACHE_DIR}/fetch"
 

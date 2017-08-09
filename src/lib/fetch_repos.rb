@@ -69,12 +69,12 @@ WARN
       }
     end
 
-    def index_model(caches)
+    def index_model(caches, cond = ->(){ true } )
       order = {}
 
       order[:repos] = tmp = caches.map{|hosting, owner_repos|
         owner_repos.values.map{|repos| repos.map{|repo| Blog::Index::Item::Generic[hosting].new(repo.to_h) }}
-      }.flatten.sort{|l,r| r.created_at <=> l.created_at}
+      }.flatten.sort{|l,r| r.created_at <=> l.created_at}.select{|r| cond.(r.name) }
       order[:recent] = tmp.sort{|l,r| r.updated_at <=> l.updated_at }.take(ITEM_UPDATED)
 
       order

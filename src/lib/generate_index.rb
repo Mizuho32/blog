@@ -127,7 +127,7 @@ module Blog
 
     def generate_index(last = 0)
       cache = Blog::Fetch.fetch_repos(GIT_HOSTS)
-      Blog::Index.cache = Blog::Fetch.index_model(cache)
+      Blog::Index.cache = Blog::Fetch.index_model(cache, COND)
 
       last = last.zero? ? 
                 (Blog::Index.cache[:repos].size/ITEM_PER_INDEX_PAGE).to_f.ceil :

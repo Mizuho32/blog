@@ -3,18 +3,10 @@
 :sectnums:
 :icons: font
 
-
 = ブログ
-
-== 最近
-
-alist::[key=recent]
 
 == 一覧
 
 alist::[key=repos]
 
 pager::[]
-
-//{docinfodir}
-//{linkcss}

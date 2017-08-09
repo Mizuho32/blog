@@ -14,42 +14,29 @@ args =  OptionParser.new.instance_eval {
   self.summary_width = 14
 
   %w[
-    -i :generate\ index.html
+    -i [max_page_num]::generate\ index.html
     -g\ <file\ path> :generate\ page\ under\ repos\ into\ articles
     -r\ <revision> :specify\ gitrevisions\ (default:\ master)
     -s\ [root_path] :launch\ web\ server
     -p\ <ad:port> :bind\ address\ and\ port\ for\ webserver
     -w\ <ad:port> :bind\ address\ and\ port\ for\ websocket
     -c\ <file\ path> :check\ path
-    -f\ <cfg.yaml> :fetch\ repositories
+    -f :fetch\ repositories
   ].each_slice(2){|ar| on(*ar)}
 
   parse(ARGV)
 }
 
-opt = ARGV.getopts("ig:r:s:p:c:w:f:")
+opt = ARGV.getopts("i:g:r:s:p:c:w:f")
 
 require_relative "../conf/conf"
 
 case
-  when opt[?i] then
+  when i = opt[?i].to_i then
     require_relative "lib/fetch_repos"
     require_relative 'lib/utils/util'
     require_relative "lib/generate_index"
-
-    cache = Blog::Fetch.fetch_repos(YAML.load_file(opt[?f]))
-    Blog::Fetch.cache = Blog::Fetch.index_model(cache)
-
-    Asciidoctor.convert_file(
-      PROJ_ROOT + "/templ/index.adoc", 
-      safe:       :unsafe, 
-      base_dir:   (PROJ_ROOT + "/templ"), 
-      to_dir:     "../articles",
-      attributes: { 
-        'docinfodir' => (PROJ_ROOT + "/templ/common"), 
-        'docinfo'    => "shared"
-      }
-    )
+    Blog::Index.generate_index(i)
 
   when path = opt[?c] then
     require_relative "lib/generate_page"
@@ -68,9 +55,8 @@ case
     require_relative 'lib/websocket'
     wsonly(opt)
 
-  when y = opt[?f] then
+  when opt[?f] then
     require_relative "lib/fetch_repos"
     require_relative 'lib/utils/util'
-    Blog::Fetch.fetch_repos(YAML.load_file(y))
-    #pp Blog::Fetch.index_model(cache)
+    Blog::Fetch.fetch_repos(GIT_HOSTS)
 end

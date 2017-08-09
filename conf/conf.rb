@@ -20,8 +20,12 @@ ITEM_PER_PAGE     = 1
 
 # for index
 ITEM_UPDATED        = 5
-ITEM_PER_INDEX_PAGE = 1
+ITEM_PER_INDEX_PAGE = 7
 NO_DESC_CAPTION     = "No description, website, or topics provided."
+ZONE                = "JST"
+GIT_HOSTS           = {
+  github: :Mizuho32
+}
 
 # regex key to IGNORECASE, $ match
 (->(){

@@ -80,8 +80,5 @@ WARN
       order
     end
 
-    class << self
-      attr_accessor :cache
-    end
   end
 end

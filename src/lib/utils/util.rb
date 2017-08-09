@@ -1,5 +1,4 @@
 require 'erb'
-require 'msgpack'
 require 'lzma'
 
 module Blog

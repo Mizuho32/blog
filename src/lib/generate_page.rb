@@ -70,6 +70,7 @@ def generate_dir_index(repo_name, rel_path, rev)
   ftypes = FTYPES[:doc].merge(FTYPES[:code]).keys
   path = File.expand_path(ART_ROOT + "/#{repo_name}/#{rev}/#{rel_path}")
   files = Git.ls(rel_path, rev)
+  index_html_included = false
 
   # make dir for non binary files
   files.each{|file| 
@@ -92,15 +93,22 @@ def generate_dir_index(repo_name, rel_path, rev)
       if Util.file_type?(tmpfile)[0] != ?t then # binary
         #$debug.puts "binary:#{file}   #{path}/#{file}"
         FileUtils.mv(tmpfile, "#{path}/#{file}")
-        next
+      elsif file =~ /\.html$/ then # html file # fixme
+        index_html_included = true if file == "index.html"
+        FileUtils.mv(tmpfile, "#{path}/#{file}")
       else  # text
         #$debug.puts "text:#{file}   #{path}/#{file}/#{file}"
         FileUtils.mkdir_p(filepath)
         FileUtils.mv(tmpfile, "#{path}/#{file}/#{file}")
       end
+
+      next
     end
     FileUtils.mkdir_p(filepath)
   }
+  
+  return if index_html_included
+  branches = Git.remote_branch
 
   # fixme?
   # index.html under repository root page
@@ -110,7 +118,7 @@ def generate_dir_index(repo_name, rel_path, rev)
 = #{repo_name}
 
 #{ 
-(branches = Git.remote_branch).map{|b| 
+(branches).map{|b| 
   "link:#{b}/[#{b}]::"
 }
 .join("\n") 

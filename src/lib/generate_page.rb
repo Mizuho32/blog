@@ -85,8 +85,9 @@ def generate_dir_index(repo_name, rel_path, rev)
     # not dir nor code nor doc, looks binary
     unless  ftypes.any?{|t| t =~ file} then  
       now = Time.now
+      #fixme
       tmpfile = "#{path}/#{now.hour}#{now.min}#{now.sec}"
-      `git show #{rev}:#{rel_path}/#{file} > "#{tmpfile}"`
+      `git show #{rev.revision}:#{rel_path}/#{file} > "#{tmpfile}"`
 
       if Util.file_type?(tmpfile)[0] != ?t then # binary
         #$debug.puts "binary:#{file}   #{path}/#{file}"
@@ -227,12 +228,14 @@ def generate_html(repo_name, rel_path, is_dir, rev)
     end
 
     # ~~ Text only ~~
-    `git show #{rev}:#{rel_path} > "#{write_path}"` unless File.exist?(write_path)
+    #fixme
+    `git show #{rev.revision}:#{rel_path} > "#{write_path}"` unless File.exist?(write_path)
     #pp "#{write_path}"
     generate_file_index(repo_name, rel_path, rev, write_path)
   end
 end
 
+# rev: raw revision or branch string
 def valid_path?(path, rev)
 
   # get revision or branch and relative path
@@ -274,7 +277,7 @@ end
 # repo: repository name
 # rel:  relative path under repository. rel should pass `git show branch:rel`
 # rel can end with no / if it is directory. Auto detect
-# rev: revision or branch
+# rev: raw revision or branch string
 def generate_page(repo, rel, rev, skip_check = false)
 
   repo_name, rel_path, branch_or_rev = if skip_check then

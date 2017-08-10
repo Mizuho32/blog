@@ -67,9 +67,9 @@ module Blog
       end
     end
 
-    def exist?(path, gitrev = "master")
+    def exist?(path, gitrev = GitRevision::MASTER)
 
-      res = Open3.capture3("git show #{gitrev}:#{path} > /dev/null")
+      res = Open3.capture3("git show #{gitrev.revision}:#{path} > /dev/null")
       unless res.last.exitstatus.zero? then
         raise RuntimeError.new(res[1]) if res[1] =~ /repository/
         return false
@@ -78,15 +78,15 @@ module Blog
       true
     end
 
-    def ls(path, gitrev = "master")
-      res,e,p = run_git_cmd("show #{gitrev}:#{path}")
+    def ls(path, gitrev = GitRevision::MASTER)
+      res,e,p = run_git_cmd("show #{gitrev.revision}:#{path}")
       return [] unless p.exitstatus.zero?
 
       res
         .split("\n")[2..-1]
     end
 
-    def directory?(path, gitrev = "master")
+    def directory?(path, gitrev = GitRevision::MASTER)
       return true if path == "./"
 
       dir = "./" + File.dirname(path)
@@ -101,7 +101,7 @@ module Blog
     end
 
     def grep(pat, rev, regexopt:"", opt:"-C 2 -n  -I")
-      out, err, p = run_git_cmd("grep --break --heading #{opt} -E#{regexopt} '#{pat}' #{rev}")
+      out, err, p = run_git_cmd("grep --break --heading #{opt} -E#{regexopt} '#{pat}' #{rev.revision}")
       return {} unless p.exitstatus.zero?
       out
         .split(/^$/)
@@ -111,8 +111,8 @@ module Blog
         }
     end
 
-    def shebang(rel_path, repo, gitrev="master")
-      out, err, p = run_git_cmd("show #{gitrev}:#{rel_path} | head -n 1", dir:(REPOS_ROOT+"/#{repo}"))
+    def shebang(rel_path, repo, gitrev=GitRevision::MASTER)
+      out, err, p = run_git_cmd("show #{gitrev.revision}:#{rel_path} | head -n 1", dir:(REPOS_ROOT+"/#{repo}"))
       return "" unless p.exitstatus.zero?
       return out
     end
@@ -126,6 +126,7 @@ module Blog
     class GitRevision
       
       def check(rev_string)
+
         if b = Git.remote_branch?(rev_string)  then
           :branch
         elsif  Git.commit_hash?(rev_string, b) then
@@ -133,11 +134,21 @@ module Blog
         else
           raise ArgumentError.new("Invalied git revision '#{rev_string}'")
         end
+
       end
 
-      def initialize(rev_string)
-        @type     = check(rev_string)
-        @revision = rev_string
+      def initialize(rev_string, type = nil)
+
+        if type.nil? then
+          @type     = check(rev_string)
+          @revision = rev_string
+        elsif type == :branch or type == :hash then
+          @type     = type
+          @revision = rev_string
+        else
+          raise ArgumentError.new("Invalied git revision type #{type} for '#{rev_string}'")
+        end
+
       end
       
       def to_s
@@ -156,6 +167,7 @@ module Blog
         end
       end
 
+      MASTER = GitRevision.new("master", :branch)
     end
 
   end

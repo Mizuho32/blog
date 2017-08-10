@@ -99,12 +99,12 @@ class Gen_Page_Test < Test::Unit::TestCase
   end
 
   test "exist_remote? test" do
-    assert_true(  exist?("dir",              "master") )
-    assert_true(  exist?("dir/",             "master") )
-    assert_true(  exist?("README.md",        "master") )
-    assert_true(  exist?("dir/README.md",    "master") )
-    assert_false( exist?("empty/README.md",  "master") )
-    assert_false( exist?("README.md/",       "master") )
+    assert_true(  exist?("dir",              GitRevision::MASTER) )
+    assert_true(  exist?("dir/",             GitRevision::MASTER) )
+    assert_true(  exist?("README.md",        GitRevision::MASTER) )
+    assert_true(  exist?("dir/README.md",    GitRevision::MASTER) )
+    assert_false( exist?("empty/README.md",  GitRevision::MASTER) )
+    assert_false( exist?("README.md/",       GitRevision::MASTER) )
   end
 
   test "ls test" do
@@ -127,7 +127,7 @@ class Gen_Page_Test < Test::Unit::TestCase
   end
   
   test "grep test" do
-    grep = grep("hel", "origin/develop", regexopt:"i")
+    grep = grep("hel", GitRevision.new("develop"), regexopt:"i")
     expected = <<-'EX'
 1-/******************************************************************************
 2:* FILE: hello.c
@@ -160,7 +160,7 @@ EX
   end
 
   test "shebang test" do
-    assert_equal("/******************************************************************************\r\n", shebang("hello.c", "test", "origin/develop"))
+    assert_equal("/******************************************************************************\r\n", shebang("hello.c", "test", GitRevision.new("develop")))
   end
 
   test "GitRevision local branch ok" do

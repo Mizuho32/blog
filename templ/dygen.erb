@@ -10,8 +10,7 @@
 <style>
   em {
     background-color: cyan;
-  }
-</style>
+  } </style>
 </head>
 <body class="article">
   <div id="header">
@@ -62,8 +61,11 @@
     }
     ws.onmessage = (e)=>{
       console.log(e.data);
-      if (e.data == "dead"){
+      if (e.data == "dead" || e.data == "false"){
         location.reload();
+      } else if (e.data == "") {
+        alert("looks an Exception occured in server");
+        //location.reload();
       }
     }
   }

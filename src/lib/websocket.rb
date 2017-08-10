@@ -1,12 +1,17 @@
 require 'em-websocket'
 
 def embryo(websocket, id = nil, &task)
-  pid = id || rand(100)
+  pid = id || rand(100) #fixme
   websocket[:connection][pid] = nil
   websocket[:process][pid] = Thread.new{
-    task.()
-    while not websocket[:connection][pid] do; end
-    websocket[:connection][pid].send("dead")
+    begin
+      task.()
+      while not websocket[:connection][pid] do; end
+      websocket[:connection][pid].send("dead")
+    rescue Exception => ex
+      puts "#{__LINE__}: #{ex.message}\n#{ex.backtrace.join("\n")}"
+      raise ex
+    end
   }
   return pid
 end
@@ -24,10 +29,10 @@ def websocket_server(address, port)
           end
 
           ws.onmessage do |msg|
-            puts "client loaded"
+            puts "#{__LINE__}: client loaded "
             pid = msg.to_i
             server[:connection][pid] = ws
-            ws.send(server[:process][pid]&.status)
+            ws.send(server[:process][pid]&.status.to_s)
           end
 
           ws.onclose do
